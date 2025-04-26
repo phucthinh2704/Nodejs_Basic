@@ -1,0 +1,35 @@
+GET http://localhost:8000
+
+###
+POST http://localhost:8000/api/v1/auth/register
+Content-Type: application/json
+
+{
+   "email": "admin@gmail.com",
+   "password": "123456"
+}
+
+###
+POST http://localhost:8000/api/v1/auth/login
+Content-Type: application/json
+
+{
+   "email": "user1@gmail.com",
+   "password": "123456"
+}
+
+###
+GET http://localhost:8000/api/v1/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ1c2VyMUBnbWFpbC5jb20iLCJyb2xlX2NvZGUiOiJSMyIsImlhdCI6MTc0NTUwNDM1OCwiZXhwIjoxNzQ2MzY4MzU4fQ.Rnd5jIfIWHHoo6FYxdnj7a7nfvtPgZnMMg-d_G5nnDY
+
+###
+GET http://localhost:8000/api/v1/insert/category
+
+###
+GET http://localhost:8000/api/v1/insert/book
+
+###
+GET http://localhost:8000/api/v1/books/?sort=desc&limit=2&name=music
+
+###
+GET http://localhost:8000/api/v1/books?sort=desc&available=10,20

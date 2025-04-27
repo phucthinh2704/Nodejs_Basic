@@ -20,7 +20,17 @@ const verifyToken = (req, res, next) => {
     */
 	jwt.verify(access_token, process.env.JWT_SECRET, (err, user) => {
 		if (err) {
-			return notAuthorized("Access token is not valid", res);
+			const isChecked = err instanceof jwt.TokenExpiredError;
+			if (!isChecked) {
+				return notAuthorized(
+					"Access token is not valid",
+					res,
+					isChecked
+				);
+			}
+			if (isChecked) {
+				return notAuthorized("Access token is expired", res, isChecked);
+			}
 		}
 		req.user = user;
 		next();

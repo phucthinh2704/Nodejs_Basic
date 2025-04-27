@@ -11,6 +11,7 @@ import {
 	title,
 	id,
 	book_ids,
+	description,
 } from "../helpers/joi_schema";
 
 //	GET api/v1/books
@@ -36,6 +37,7 @@ export const createNewBook = async (req, res) => {
 			price,
 			available,
 			image,
+			description,
 			category_code,
 		}).validate({ ...req.body, image: fileData?.path });
 		if (error) {

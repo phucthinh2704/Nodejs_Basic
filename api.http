@@ -5,7 +5,7 @@ POST http://localhost:8000/api/v1/auth/register
 Content-Type: application/json
 
 {
-   "email": "admin@gmail.com",
+   "email": "test3@gmail.com",
    "password": "123456"
 }
 
@@ -14,13 +14,13 @@ POST http://localhost:8000/api/v1/auth/login
 Content-Type: application/json
 
 {
-   "email": "user1@gmail.com",
+   "email": "test3@gmail.com",
    "password": "123456"
 }
 
 ###
 GET http://localhost:8000/api/v1/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ1c2VyMUBnbWFpbC5jb20iLCJyb2xlX2NvZGUiOiJSMyIsImlhdCI6MTc0NTUwNDM1OCwiZXhwIjoxNzQ2MzY4MzU4fQ.Rnd5jIfIWHHoo6FYxdnj7a7nfvtPgZnMMg-d_G5nnDY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoidGVzdDNAZ21haWwuY29tIiwicm9sZV9jb2RlIjoiUjMiLCJpYXQiOjE3NDU3NDgxMjAsImV4cCI6MTc0NjE4MDEyMH0.q8Z7Ov6rbfnfb5cqxWGPQB9AC0c-76Kbw9sJHNbTBbk
 
 ###
 GET http://localhost:8000/api/v1/insert/category

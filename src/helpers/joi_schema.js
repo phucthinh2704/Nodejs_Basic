@@ -18,4 +18,8 @@ export const category_code = Joi.string().alphanum().required();
 
 export const image = Joi.string().required();
 
+export const description = Joi.string().required();
+
 export const filename = Joi.string().required();
+
+export const refresh_token = Joi.string().required();

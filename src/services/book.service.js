@@ -116,10 +116,25 @@ export const createNewBook = (body, fileData) =>
 export const updateBook = ({ id, ...body }, fileData) =>
 	new Promise(async (resolve, reject) => {
 		try {
-			if (fileData) body.image = fileData?.path;
-			const response = await db.Book.update(body, {
-				where: { id },
-			});
+			if (fileData) {
+				// Xóa ảnh cũ trên cloudinary
+				const book = await db.Book.findByPk(id, {
+					raw: true,
+				});
+				if (book) {
+					await cloudinary.uploader.destroy(book.filename);
+				}
+
+				// Thêm ảnh mới vào body
+				body.image = fileData?.path;
+			}
+			const response = await db.Book.update(
+				{ ...body, filename: fileData?.filename },
+				{
+					where: { id },
+				}
+			);
+
 			resolve({
 				err: response[0] > 0 ? 0 : 1,
 				mes:
@@ -159,7 +174,7 @@ export const deleteBook = (book_ids_array) =>
 			// console.log(deletePromises);
 			const results = await Promise.all(deletePromises); // sử dụng Promise.all vì deletePromises là mảng các promise
 			// console.log(results);
-			
+
 			// Tính tổng số lượng sách đã xóa thành công
 			const count = results.reduce((sum, result) => sum + result, 0);
 

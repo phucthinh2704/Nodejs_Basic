@@ -13,47 +13,52 @@ export const getBooks = ({
 }) =>
 	new Promise(async (resolve, reject) => {
 		try {
+			// queries là object chứa các tham số cấu hình phân trang và các điều kiện lọc khác
+			// query là object chứa các tham số khác từ resquest (req.query)
 			const queries = { raw: true, nest: true };
-			// Nếu bỏ mỗi cái nest: true thì response của cả bên REST Client lẫn terminal đều là
-			// 'categoryData.id': 1,
-			// 'categoryData.code': 'RT6',
-			// 'categoryData.value': 'Travel'
-
-			// Còn cái raw: true mà bỏ đi thì dưới màn hình terminal sẽ dạng:
-			//     Book {
-			//       dataValues: [Object],
-			//       _previousDataValues: [Object],
-			//       uniqno: 1,
-			//       _changed: Set {},
-			//       _options: [Object],
-			//       isNewRecord: false,
-			//       categoryData: [Category]
-			//     }
 			const offset = !page || +page <= 1 ? 0 : +page - 1;
 			const finalLimit = +limit || +process.env.LIMIT_BOOKS;
-			queries.offset = offset * finalLimit; // vị trí muốn lấy, nếu là 0 thì lấy từ đầu
-			queries.limit = finalLimit; // số lượng muốn lấy
-			if (sort) {
-				const sortType =
-					sort === "asc" || sort === "desc" ? sort : "asc";
-				queries.order = [["price", sortType]];
-			}
+			queries.offset = offset * finalLimit;
+			queries.limit = finalLimit;
 
-			if (available) {
-				// Nếu là chuỗi có dấu phẩy, chuyển thành mảng
-				if (typeof available === "string" && available.includes(",")) {
-					available = available.split(",").map(Number);
-				}
-				query.available = { [Op.between]: available };
-			}
+			// Enhanced filtering
+			const filterConditions = {};
+			
+			// Title search with case-insensitive
 			if (name) {
-				query.title = {
-					[Op.substring]: name,
+				filterConditions.title = {
+					[Op.like]: `%${name}%`
 				};
 			}
 
+			// Availability range filter
+			if (available) {
+				if (typeof available === "string" && available.includes(",")) {
+					available = available.split(",").map(Number);
+				}
+				filterConditions.available = { [Op.between]: available };
+			}
+
+			// Price range filter
+			if (query.minPrice || query.maxPrice) {
+				filterConditions.price = {};
+				if (query.minPrice) filterConditions.price[Op.gte] = +query.minPrice;
+				if (query.maxPrice) filterConditions.price[Op.lte] = +query.maxPrice;
+			}
+
+			// Category filter
+			if (query.category) {
+				filterConditions.category_code = query.category;
+			}
+
+			// Sorting
+			if (sort) {
+				const sortType = sort === "asc" || sort === "desc" ? sort : "asc";
+				queries.order = [[order || "price", sortType]];
+			}
+
 			const response = await db.Book.findAndCountAll({
-				where: query,
+				where: filterConditions,
 				...queries,
 				attributes: {
 					exclude: ["category_code"],
@@ -66,10 +71,23 @@ export const getBooks = ({
 					},
 				],
 			});
+
+			// Calculate pagination metadata
+			const totalPages = Math.ceil(response.count / finalLimit);
+			const currentPage = offset + 1;
+
 			resolve({
 				err: response ? 0 : 1,
 				mes: response ? "Get books successfully" : "Get books failed",
-				data: response,
+				data: {
+					books: response.rows,
+					pagination: {
+						total: response.count,
+						page: currentPage,
+						limit: finalLimit,
+						totalPages
+					}
+				}
 			});
 		} catch (error) {
 			reject({
